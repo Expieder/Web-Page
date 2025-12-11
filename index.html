@@ -5,275 +5,212 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>XPieder — Real-Life Social Network</title>
   <meta name="description" content="XPieder — the world's first Real-Life Social Network. Connect with people around you using spatial AR interactions and presence-based discovery." />
-
   <style>
     :root{
-      --bg-1:#04121a;
-      --bg-2:#071727;
-      --accent-a:#7c3aed;
-      --accent-b:#22c7ff;
-      --muted:rgba(255,255,255,0.85);
-      --footer-h:64px;
-      --nav-h:68px;
+      --bg-1: #04121a;
+      --bg-2: #071727;
+      --accent-a: #7c3aed;
+      --accent-b: #22c7ff;
+      --muted: rgba(255,255,255,0.88);
+      --nav-h: 68px;
+      --footer-h: 64px;
     }
 
-    html,body{
-      height:100%;margin:0;padding:0;
-      background:linear-gradient(180deg,var(--bg-1),var(--bg-2));
-      font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial;
-      overflow:hidden;-webkit-font-smoothing:antialiased;
-    }
+    /* Basic reset */
+    html,body{height:100%;margin:0;padding:0;overflow:hidden;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial;color:var(--muted);-webkit-font-smoothing:antialiased;}
+    a{color:inherit}
 
-    /* Ambient animated background */
-    .ambient{
+    /* Ambient animated background (light, GPU-friendly) */
+    .ambient {
       position:fixed;inset:0;z-index:0;pointer-events:none;
       background:
-        radial-gradient(900px 500px at 12% 25%,rgba(124,58,237,0.12),transparent 30%),
-        radial-gradient(800px 450px at 85% 80%,rgba(34,199,255,0.10),transparent 35%);
-      filter:blur(18px);
-      animation:ambientMove 18s ease-in-out infinite;
-      opacity:0.9;
+        radial-gradient(700px 400px at 8% 20%, rgba(124,58,237,0.10), transparent 12%),
+        radial-gradient(700px 400px at 85% 80%, rgba(34,199,255,0.06), transparent 12%);
+      filter: blur(14px);
+      transform: translateZ(0);
+      animation: ambientDrift 20s linear infinite;
+      opacity:0.95;
     }
-    @keyframes ambientMove{
-      0%{transform:translateY(0px) translateX(0px);}
-      50%{transform:translateY(-20px) translateX(12px);}
-      100%{transform:translateY(0px) translateX(0px);}
-    }
-
-    /* NAVIGATION BAR */
-    .nav{
-      position:fixed;left:16px;right:16px;top:14px;
-      height:var(--nav-h);
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 20px;
-      background:rgba(255,255,255,0.03);
-      backdrop-filter:blur(10px);
-      border-radius:14px;
-      box-shadow:0 12px 40px rgba(2,6,12,0.55);
-      border:1px solid rgba(255,255,255,0.03);
-      z-index:10020;
-    }
-    .nav-left{display:flex;align-items:center;gap:12px;}
-    .brand-img{width:44px;height:44px;border-radius:10px;object-fit:contain;box-shadow:0 6px 24px rgba(0,0,0,0.5);}
-    .brand-title{font-weight:800;font-size:15px;color:#fff;}
-    .brand-sub{font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;}
-
-    .nav-right{display:flex;align-items:center;gap:20px;}
-    .nav-link{
-      color:rgba(255,255,255,0.85);text-decoration:none;
-      font-weight:600;font-size:14px;
-      transition:opacity .15s ease;
-    }
-    .nav-link:hover{opacity:1;}
-
-    .cta-btn{
-      padding:10px 16px;border-radius:10px;border:0;
-      background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
-      color:white;font-weight:800;cursor:pointer;
-      box-shadow:0 6px 20px rgba(34,199,255,0.12);
-      transition:transform .15s ease,box-shadow .15s ease;
-    }
-    .cta-btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 14px 28px rgba(34,199,255,0.16);
+    @keyframes ambientDrift {
+      0%{ transform: translate3d(0,0,0); }
+      50%{ transform: translate3d(12px,-18px,0); }
+      100%{ transform: translate3d(0,0,0); }
     }
 
-    /* FRAME WRAPPER */
-    .frame-wrap{
-      position:fixed;
-      top:calc(var(--nav-h) + 28px);
-      left:20px;right:20px;
+    /* Top navigation - glassy */
+    .nav {
+      position:fixed;left:16px;right:16px;top:14px;height:var(--nav-h);z-index:10020;
+      display:flex;align-items:center;justify-content:space-between;padding:8px 20px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:14px;box-shadow:0 12px 40px rgba(3,8,14,0.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.03);
+      transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .nav-left{display:flex;align-items:center;gap:12px}
+    .brand-img{width:44px;height:44px;border-radius:10px;object-fit:contain;box-shadow:0 6px 22px rgba(0,0,0,0.45)}
+    .brand-title{font-weight:800;font-size:15px;color:#fff;line-height:1}
+    .brand-sub{font-size:12px;color:rgba(255,255,255,0.9);font-weight:600}
+
+    .nav-right{display:flex;align-items:center;gap:14px}
+    .nav-link{font-weight:700;font-size:14px;color:rgba(255,255,255,0.9);text-decoration:none;opacity:0.95}
+    .cta-btn{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));color:white;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(34,199,255,0.08);transition:transform .12s ease}
+    .cta-btn:hover{transform:translateY(-2px)}
+
+    /* Frame container: top/bottom spacing for nav/footer; no layout shifts */
+    .frame-wrap {
+      position:fixed;left:12px;right:12px;
+      top:calc(var(--nav-h) + 26px);
       bottom:calc(var(--footer-h) + 18px);
-      border-radius:16px;
+      z-index:2;border-radius:14px;overflow:hidden;
+      border:1px solid rgba(255,255,255,0.03);
       box-shadow:0 30px 80px rgba(2,6,12,0.6);
-      border:1px solid rgba(255,255,255,0.04);
-      overflow:hidden;z-index:2;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
     }
 
-    iframe{
+    /* Ensure iframe is always 100% — crucial to prevent Gamma auth fallback */
+    .frame-wrap iframe{
       width:100% !important;
       height:100% !important;
-      border:0;display:block;
-      background:transparent;
+      border:0;display:block;background:transparent;
     }
 
-    /* LOADER */
-    .loader{
-      position:fixed;inset:0;
-      display:flex;align-items:center;justify-content:center;
-      background:rgba(4,8,12,0.6);
-      z-index:10010;transition:opacity .4s ease,visibility .4s ease;
+    /* Loader (glowing ring) - lightweight CSS */
+    .loader {
+      position:fixed;inset:0;z-index:10015;display:flex;align-items:center;justify-content:center;pointer-events:none;background:linear-gradient(180deg, rgba(3,6,10,0.55), rgba(3,6,10,0.4));
+      transition:opacity .28s ease, visibility .28s ease;
     }
-    .loader.hidden{opacity:0;visibility:hidden;}
-
+    .loader.hidden{opacity:0;visibility:hidden}
     .glow-ring{
-      width:92px;height:92px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;
-      position:relative;
-      animation:breath 1.8s infinite ease-in-out;
+      width:84px;height:84px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;
+      background: radial-gradient(circle at 30% 20%, rgba(34,199,255,0.12), rgba(124,58,237,0.03));
+      box-shadow:0 8px 36px rgba(34,199,255,0.04);
+      animation:breath 1.8s ease-in-out infinite;
     }
-    .ring-core{
-      width:60px;height:60px;border-radius:50%;
-      background:conic-gradient(from 0deg,var(--accent-a),var(--accent-b));
-      filter:blur(0.4px);
-      box-shadow:0 8px 24px rgba(124,58,237,0.15);
-    }
-    .ring-outer{
-      position:absolute;inset:-12px;border-radius:50%;
-      background:conic-gradient(rgba(124,58,237,0.2),rgba(34,199,255,0.15),rgba(124,58,237,0.1));
-      filter:blur(14px);animation:spin 6s linear infinite;
-    }
-    @keyframes spin{to{transform:rotate(360deg);}}
-    @keyframes breath{
-      0%{transform:scale(0.95);}
-      50%{transform:scale(1.05);}
-      100%{transform:scale(0.95);}
-    }
-    .loader-text{
-      margin-top:18px;color:#fff;font-weight:600;font-size:14px;text-align:center;
-    }
+    .ring-core{width:52px;height:52px;border-radius:50%;background:conic-gradient(from 0deg,var(--accent-a),var(--accent-b));box-shadow:0 8px 24px rgba(124,58,237,0.12)}
+    .ring-outer{position:absolute;inset:-8px;border-radius:50%;filter:blur(10px);opacity:0.95;background:conic-gradient(rgba(124,58,237,0.18),rgba(34,199,255,0.12))}
+    @keyframes breath{0%{transform:scale(.96)}50%{transform:scale(1.05)}100%{transform:scale(.96)}}
+    .loader-text{margin-top:14px;color:#fff;font-weight:600}
 
-    /* FOOTER */
+    /* Footer - minimal, clean */
     footer{
-      position:fixed;left:12px;right:12px;bottom:12px;height:var(--footer-h);
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0 18px;background:rgba(255,255,255,0.03);
-      backdrop-filter:blur(8px);
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.04);
-      color:var(--muted);
-      font-size:13px;
-      z-index:10015;
+      position:fixed;left:12px;right:12px;bottom:12px;height:var(--footer-h);z-index:10020;
+      display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-radius:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(6px);box-shadow:0 12px 40px rgba(2,6,12,0.45)
     }
-    .badge{
-      padding:6px 10px;border-radius:8px;
-      background:rgba(255,255,255,0.05);
-      font-weight:700;color:#e6eef6;font-size:12px;
-    }
+    .badge{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:700;color:#e6eef6;font-size:12px}
 
-    /* INVITE MODAL */
-    .modal-backdrop{
-      position:fixed;inset:0;display:none;
-      align-items:center;justify-content:center;
-      background:rgba(0,0,0,0.6);z-index:10040;
-    }
-    .modal{
-      width:100%;max-width:480px;
-      background:#081420;border-radius:14px;
-      padding:20px;box-shadow:0 24px 60px rgba(0,0,0,0.7);
-      border:1px solid rgba(255,255,255,0.05);
-    }
-    .modal input{
-      width:100%;padding:12px;border-radius:10px;
-      border:1px solid rgba(255,255,255,0.08);
-      background:transparent;color:#fff;margin-top:4px;
-    }
-    .modal-btn{
-      padding:10px 14px;border-radius:10px;border:0;
-      background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
-      color:#fff;font-weight:700;cursor:pointer;
+    /* Invite modal (display:none until opened) */
+    .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10030;background:rgba(0,0,0,0.6)}
+    .modal{width:100%;max-width:460px;background:#071523;border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 18px 46px rgba(0,0,0,0.6)}
+    .modal h3{margin:0 0 8px 0;color:#fff}
+    .modal p{margin:0 0 12px 0;color:rgba(255,255,255,0.86)}
+    .modal input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;margin-bottom:10px}
+
+    /* small screens */
+    @media (max-width:900px){
+      .frame-wrap{left:8px;right:8px;top:calc(var(--nav-h) + 14px);bottom:calc(var(--footer-h) + 12px)}
+      .nav{left:8px;right:8px}
+      .brand-img{width:36px;height:36px}
     }
   </style>
 </head>
-
 <body>
 
-  <!-- Ambient Background -->
-  <div class="ambient"></div>
+  <!-- ambient animated background -->
+  <div class="ambient" aria-hidden="true"></div>
 
-  <!-- Navigation -->
-  <header class="nav">
+  <!-- top navigation -->
+  <header class="nav" role="banner">
     <div class="nav-left">
-      <img src="logo.png" class="brand-img" alt="XPieder logo" />
+      <img src="logo.png" alt="XPieder logo" class="brand-img" />
       <div>
         <div class="brand-title">XPieder</div>
         <div class="brand-sub">Real-Life Social Network</div>
       </div>
     </div>
 
-    <nav class="nav-right">
-      <a href="#" class="nav-link">How it works</a>
-      <a href="#" class="nav-link">Features</a>
+    <nav class="nav-right" role="navigation" aria-label="primary">
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#features">Features</a>
       <button class="cta-btn" id="openInvite">Request Invite</button>
     </nav>
   </header>
 
-  <!-- Loader -->
-  <div class="loader" id="loader">
-    <div style="display:flex;flex-direction:column;align-items:center;">
-      <div class="glow-ring">
-        <div class="ring-outer"></div>
-        <div class="ring-core"></div>
+  <!-- loader -->
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <div style="text-align:center">
+      <div class="glow-ring" aria-hidden="true">
+        <div class="ring-outer" aria-hidden="true"></div>
+        <div class="ring-core" aria-hidden="true"></div>
       </div>
-      <div class="loader-text">XPieder — preparing your real world layer…</div>
+      <div class="loader-text">XPieder — preparing your real-world layer…</div>
     </div>
   </div>
 
-  <!-- Embedded Gamma Content -->
-  <div class="frame-wrap">
+  <!-- frame (Gamma embed) -->
+  <div class="frame-wrap" id="frameWrap" aria-hidden="false">
+    <!-- IMPORTANT: cleaned iframe (no fixed sizes) -->
     <iframe
       src="https://gamma.app/embed/8chj517oau8li0f"
       allow="fullscreen; geolocation; microphone; camera"
       title="XPieder: World's First Real-Life Social Network"
-      onload="document.getElementById('loader').classList.add('hidden')">
-    </iframe>
+      onload="document.getElementById('loader').classList.add('hidden')"></iframe>
   </div>
 
-  <!-- Footer -->
-  <footer>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="font-weight:800;color:#fff;">XPieder</div>
+  <!-- footer -->
+  <footer role="contentinfo">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-weight:800;color:#fff">XPieder</div>
       <div class="badge">NVIDIA Inception</div>
     </div>
-
-    <div style="text-align:right;">
-      Techefect Private Limited<br>
-      <span style="font-size:12px;opacity:.85;">H-388, Shernagar, Agomoni, 783335, Dhubri, Assam</span>
+    <div style="text-align:right">
+      Techefect Private Limited<br />
+      <span style="font-size:12px;opacity:0.9">H-388, Shernagar, Agomoni, 783335, Dhubri, Assam</span>
     </div>
   </footer>
 
-  <!-- Modal -->
-  <div id="modalBackdrop" class="modal-backdrop">
-    <div class="modal">
-      <h3 style="color:#fff;margin:0;">Request Early Access</h3>
-      <p style="color:var(--muted);font-size:14px;">Enter your email and we'll notify you.</p>
-
-      <input id="inviteEmail" type="email" placeholder="you@example.com" />
-      <div id="inviteMsg" style="margin:6px 0;font-size:13px;color:#9cc;"></div>
-
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px;">
-        <button class="modal-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.2);" id="modalCancel">Cancel</button>
-        <button class="modal-btn" id="modalSend">Send Request</button>
+  <!-- invite modal -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Request Early Access</h3>
+      <p>Enter your email and we’ll notify you when slots are available.</p>
+      <label for="inviteEmail" style="display:none">Email</label>
+      <input id="inviteEmail" type="email" placeholder="you@domain.com" />
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="modalCancel" style="padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">Cancel</button>
+        <button id="modalSend" style="padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));color:#fff;font-weight:700">Request Invite</button>
       </div>
+      <div id="inviteMsg" style="margin-top:10px;color:rgba(255,255,255,0.85);font-size:13px"></div>
     </div>
   </div>
 
   <script>
-    // Loader failsafe
-    setTimeout(()=>document.getElementById('loader').classList.add('hidden'),9000);
+    // loader fallback (in case iframe doesn't fire onload)
+    setTimeout(function(){ var l=document.getElementById('loader'); if(l && !l.classList.contains('hidden')) l.classList.add('hidden'); }, 9000);
 
-    // Modal Logic
-    const openInvite=document.getElementById('openInvite');
-    const modal=document.getElementById('modalBackdrop');
-    const cancel=document.getElementById('modalCancel');
-    const send=document.getElementById('modalSend');
-    const email=document.getElementById('inviteEmail');
-    const msg=document.getElementById('inviteMsg');
+    // Invite modal controls
+    (function(){
+      var openBtn = document.getElementById('openInvite');
+      var modal = document.getElementById('modalBackdrop');
+      var cancel = document.getElementById('modalCancel');
+      var send = document.getElementById('modalSend');
+      var email = document.getElementById('inviteEmail');
+      var msg = document.getElementById('inviteMsg');
 
-    openInvite.onclick=()=>{modal.style.display='flex';email.focus();}
-    cancel.onclick=()=>{modal.style.display='none';msg.textContent='';}
+      openBtn.addEventListener('click', function(){ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); email.focus(); });
+      cancel.addEventListener('click', function(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); msg.textContent=''; });
 
-    send.onclick=()=>{
-      if(!email.value.includes('@')){msg.textContent='Please enter a valid email.';return;}
-      msg.textContent='Sending...';
-      send.disabled=true;
-      setTimeout(()=>{
-        msg.textContent='Thanks! We will reach out soon.';
-        send.disabled=false;
-        email.value='';
-        setTimeout(()=>{modal.style.display='none';msg.textContent='';},1200);
-      },1000);
-    }
+      send.addEventListener('click', function(){
+        var val = (email.value || '').trim();
+        if(!val || val.indexOf('@') === -1){ msg.textContent='Please enter a valid email.'; return; }
+        send.disabled = true; send.textContent = 'Sending…';
+        // Replace this setTimeout with a real webhook (Zapier/Netlify function/your backend)
+        setTimeout(function(){ send.disabled=false; send.textContent='Request Invite'; msg.textContent='Thanks — we will be in touch.'; email.value=''; setTimeout(function(){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); msg.textContent=''; },1200); }, 1200);
+      });
+
+      // close modal on ESC
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }});
+    })();
   </script>
 </body>
 </html>
