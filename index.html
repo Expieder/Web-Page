@@ -1,1 +1,70 @@
-<iframe src="https://gamma.app/embed/8chj517oau8li0f" style="width: 700px; max-width: 100%; height: 450px" allow="fullscreen" title="XPieder: The World's First Real-Life Social Network"></iframe>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XPieder — Real-Life Social Network</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Wrapper forces the iframe to fill full browser height */
+    .frame-wrap {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100% !important;
+      height: 100% !important;
+      border: 0;
+      display: block;
+    }
+
+    /* Loading overlay */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #060c12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffffcc;
+      font-size: 18px;
+      z-index: 9999;
+      font-family: Inter, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loader">Loading XPieder…</div>
+
+  <div class="frame-wrap">
+
+    <!-- XPieder Gamma Embed -->
+    <iframe 
+      src="https://gamma.app/embed/8chj517oau8li0f"
+      allow="fullscreen"
+      title="XPieder: The World's First Real-Life Social Network"
+      onload="document.getElementById('loader').style.display='none';">
+    </iframe>
+
+  </div>
+
+</body>
+</html>
