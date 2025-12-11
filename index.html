@@ -5,179 +5,286 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>XPieder — Real-Life Social Network</title>
   <meta name="description" content="XPieder — the world's first Real-Life Social Network. Connect with people around you using spatial AR interactions and presence-based discovery." />
+
   <style>
     :root{
-      --bg1: #06121a;
-      --bg2: #071727;
-      --accent: #7c3aed;
-      --accent-2: #3b82f6;
-      --muted: rgba(255,255,255,0.84);
-      --footer-h: 60px;
-      --loader-bg: rgba(6,12,18,0.85);
+      --bg-1: #04121a;
+      --bg-2: #071727;
+      --accent-a: #7c3aed; /* purple */
+      --accent-b: #22c7ff; /* cyan */
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.85);
+      --footer-h: 64px;
+      --nav-h: 68px;
+      --brand-padding: 12px 14px;
     }
 
-    html,body{height:100%;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
-    body{background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--muted);-webkit-font-smoothing:antialiased;overflow:hidden;}
+    /* Reset */
+    html,body{height:100%;margin:0;padding:0;overflow:hidden;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial;}
+    body{background:linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:var(--muted); -webkit-font-smoothing:antialiased;}
 
-    /* Floating brand/logo */
-    .brand {
-      position:fixed;
-      top:14px;
-      left:16px;
-      z-index:10010;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:6px 10px;
-      border-radius:12px;
-      box-shadow:0 6px 24px rgba(12,18,30,0.5);
-      color:#fff;
-      font-weight:700;
-      font-size:15px;
-      line-height:1;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    /* Animated subtle background light field */
+    .ambient {
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:
+        radial-gradient(800px 400px at 10% 20%, rgba(124,58,237,0.08), transparent 10%),
+        radial-gradient(700px 350px at 85% 80%, rgba(34,199,255,0.06), transparent 12%);
+      filter: blur(12px);
+      opacity:0.95;
+      animation: drift 18s linear infinite;
     }
-    .brand img.logo {
-      width:40px;
-      height:40px;
-      object-fit:contain;
-      display:block;
-      border-radius:8px;
-      background:transparent;
-      padding:4px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+    @keyframes drift {
+      0%{ transform:translateY(0px) translateX(0px); }
+      50%{ transform:translateY(-18px) translateX(10px); }
+      100%{ transform:translateY(0px) translateX(0px); }
     }
-    .brand .title { font-weight:700; }
-    .brand .subtitle { display:block; font-size:12px; opacity:0.95; margin-top:2px; font-weight:600; }
 
-    /* Frame area - leaves room for footer */
+    /* Top navigation - glassmorphism */
+    .nav {
+      position:fixed; left:16px; right:16px; top:14px; height:var(--nav-h); z-index:10020;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:14px; padding:6px 12px; box-shadow:0 10px 30px rgba(3,8,14,0.6);
+      backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.03);
+      transition:transform .28s ease, box-shadow .28s ease;
+    }
+    .nav.scrolled { transform: translateY(-6px); box-shadow:0 18px 50px rgba(3,8,14,0.7); }
+
+    .nav-left { display:flex; align-items:center; gap:12px; }
+    .brand-img { width:44px; height:44px; border-radius:9px; object-fit:contain; box-shadow:0 6px 22px rgba(0,0,0,0.5); }
+    .brand-text { display:flex; flex-direction:column; line-height:1; }
+    .brand-title { font-weight:800; font-size:15px; letter-spacing:0.1px; color:#fff; }
+    .brand-sub { font-size:12px; color:rgba(255,255,255,0.9); opacity:0.9; font-weight:600; }
+
+    .nav-right { display:flex; align-items:center; gap:12px; }
+    .nav-link { color:rgba(255,255,255,0.85); text-decoration:none; margin:0 6px; font-weight:600; opacity:0.92; font-size:14px; }
+    .cta-btn {
+      background:linear-gradient(90deg,var(--accent-a),var(--accent-b)); color:white; padding:10px 14px; border-radius:10px; border:0; font-weight:800;
+      cursor:pointer; box-shadow:0 8px 26px rgba(124,58,237,0.12); transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .cta-btn:hover{ transform:translateY(-2px); box-shadow:0 18px 44px rgba(124,58,237,0.18); }
+
+    /* Subtle logo glow when hovered */
+    .logo-wrap:hover { filter:drop-shadow(0 8px 26px rgba(124,58,237,0.18)); transform:translateY(-1px); transition:transform .18s ease, filter .18s ease; }
+
+    /* Iframe container - leave space for footer */
     .frame-wrap {
-      position:fixed;
-      top:0;
-      left:0;
-      right:0;
-      bottom:var(--footer-h);
-      width:100%;
-      height:calc(100vh - var(--footer-h));
-      z-index:1;
-      overflow:hidden;
-      display:block;
+      position:fixed; top:calc(var(--nav-h) + 28px); left:20px; right:20px; bottom:calc(var(--footer-h) + 18px);
+      z-index:2; border-radius:14px; overflow:hidden;
+      box-shadow:0 30px 80px rgba(2,6,12,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.03);
+      transition:box-shadow .3s ease, transform .24s ease;
     }
+    .frame-wrap:hover { box-shadow:0 40px 120px rgba(2,6,12,0.75); transform:translateY(-4px); }
 
-    iframe {
-      width:100% !important;
-      height:100% !important;
-      border:0;
-      display:block;
-      background:transparent;
+    /* make the embedded iframe visually 'native' with a subtle inner glow */
+    .frame-inner { width:100%; height:100%; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); }
+
+    iframe { width:100% !important; height:100% !important; border:0; display:block; background:transparent; }
+
+    /* Loader - glowing ring using logo colors */
+    .loader {
+      position:fixed; inset:0; z-index:10010; display:flex; align-items:center; justify-content:center; pointer-events:none;
+      transition:opacity .4s ease, visibility .4s ease;
+      background: linear-gradient(180deg, rgba(4,8,12,0.55), rgba(4,8,12,0.4));
     }
+    .loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
 
-    /* Loading overlay with spinner */
-    #loader {
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:10005;
-      background:var(--loader-bg);
-      color:#fff;
-      font-family:Inter,system-ui;
-      flex-direction:column;
-      gap:12px;
-      transition:opacity .3s ease, visibility .3s ease;
+    .glow-ring {
+      width:92px; height:92px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(circle at 30% 20%, rgba(34,199,255,0.16), transparent 20%), rgba(255,255,255,0.03);
+      box-shadow: 0 6px 30px rgba(34,199,255,0.06), inset 0 0 30px rgba(124,58,237,0.06);
+      position:relative;
+      animation: breathe 1800ms ease-in-out infinite;
     }
-    #loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
-
-    .spinner {
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      border:6px solid rgba(255,255,255,0.08);
-      border-top-color: #fff;
-      animation:spin 1s linear infinite;
-      box-shadow:0 6px 18px rgba(0,0,0,0.5);
+    .ring-core {
+      width:58px; height:58px; border-radius:50%; display:block; background:conic-gradient(from 180deg, var(--accent-a), var(--accent-b));
+      filter:blur(0.6px); box-shadow:0 8px 28px rgba(124,58,237,0.14);
+      transform: translateZ(0);
+    }
+    .ring-outer {
+      position:absolute; inset:-10px; border-radius:50%;
+      background:conic-gradient(from 90deg, rgba(124,58,237,0.12), rgba(34,199,255,0.08), rgba(124,58,237,0.06));
+      filter: blur(10px); opacity:0.95;
+      animation: spin 6s linear infinite;
     }
     @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes breathe { 0% { transform:scale(0.98); } 50% { transform:scale(1.04);} 100% { transform:scale(0.98); } }
 
-    .loader-text { font-size:15px; color: #e6eef6; opacity:0.95; }
+    .loader-text { margin-top:14px; color:rgba(255,255,255,0.95); font-weight:600; letter-spacing:0.2px; }
 
     /* Footer */
     footer {
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      height:var(--footer-h);
-      background:linear-gradient(180deg, rgba(7,23,37,0.36), rgba(3,8,14,0.6));
-      backdrop-filter: blur(6px);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:10px 18px;
-      z-index:10008;
-      box-shadow:0 -8px 30px rgba(4,8,14,0.6);
-      color:var(--muted);
-      font-size:13px;
+      position:fixed; left:8px; right:8px; bottom:8px; height:var(--footer-h); z-index:10015;
+      display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px; box-shadow:0 14px 50px rgba(2,6,12,0.5); backdrop-filter: blur(6px);
+      border:1px solid rgba(255,255,255,0.03); color:var(--muted); font-size:13px;
     }
     .footer-left { display:flex; gap:12px; align-items:center; }
-    .footer-left .copy { font-weight:600; color:#e6eef6 }
-    .footer-right { text-align:right; color:rgba(255,255,255,0.78); font-size:13px }
-    .footer-right a { color:rgba(255,255,255,0.78); text-decoration:none; margin-left:10px; }
+    .footer-right { text-align:right; color:rgba(255,255,255,0.86); font-size:13px; }
 
-    @media (max-width:700px){
-      .brand{top:10px; left:10px; padding:6px 10px}
-      .brand img.logo{width:32px;height:32px}
-      #loader .spinner{width:46px;height:46px;border-width:5px}
+    .badge { display:flex; gap:8px; align-items:center; padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.02); font-weight:700; color:#e6eef6; font-size:12px; }
+
+    /* Invite modal */
+    .modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10040; background:rgba(0,0,0,0.6); }
+    .modal { width:100%; max-width:480px; background:linear-gradient(180deg,#071423,#081925); border-radius:12px; padding:18px; box-shadow:0 22px 60px rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.03); }
+    .modal h3 { margin:0 0 8px 0; color:#fff; }
+    .modal p { margin:0 0 12px 0; color:var(--muted); font-size:14px; }
+    .modal input { width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff; margin-bottom:10px; }
+    .modal .row { display:flex; gap:8px; justify-content:flex-end; }
+
+    /* Small responsive rules */
+    @media (max-width:980px) {
+      .frame-wrap { left:12px; right:12px; top:calc(var(--nav-h) + 18px); bottom:calc(var(--footer-h) + 12px); }
+      .nav { left:10px; right:10px; padding:8px; border-radius:12px; }
+      .brand-img { width:36px; height:36px; }
     }
   </style>
 </head>
+
 <body>
 
-  <!-- Floating brand: logo + text -->
-  <div class="brand" aria-hidden="true">
-    <!-- Logo file should be uploaded to the repo root as "logo.png" -->
-    <img class="logo" src="logo.png" alt="XPieder logo" />
-    <div>
-      <div class="title">XPieder</div>
-      <div class="subtitle">Real-Life Social Network</div>
+  <!-- ambient gradient background -->
+  <div class="ambient" aria-hidden="true"></div>
+
+  <!-- Top navigation -->
+  <header class="nav" role="banner" id="topNav">
+    <div class="nav-left">
+      <div class="logo-wrap" style="display:flex;align-items:center;gap:12px;">
+        <!-- Logo image (repo root: logo.png) -->
+        <img src="logo.png" alt="XPieder logo" class="brand-img" />
+      </div>
+      <div class="brand-text" style="margin-left:4px;">
+        <div class="brand-title">XPieder</div>
+        <div class="brand-sub">Real-Life Social Network</div>
+      </div>
+    </div>
+
+    <nav class="nav-right" role="navigation" aria-label="Primary">
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#features">Features</a>
+      <button class="cta-btn" id="openInvite">Request Invite</button>
+    </nav>
+  </header>
+
+  <!-- loader (glowing ring) -->
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="glow-ring" aria-hidden="true">
+        <div class="ring-outer" aria-hidden="true"></div>
+        <div class="ring-core" aria-hidden="true"></div>
+      </div>
+      <div class="loader-text">XPieder — preparing your real-world layer…</div>
     </div>
   </div>
 
-  <!-- Loading overlay -->
-  <div id="loader" role="status" aria-live="polite">
-    <div class="spinner" aria-hidden="true"></div>
-    <div class="loader-text">Loading XPieder — connecting the real world...</div>
-  </div>
-
-  <!-- Full-screen iframe area (leaves room for footer) -->
-  <div class="frame-wrap" id="frameWrap">
-    <iframe
-      src="https://gamma.app/embed/8chj517oau8li0f"
-      allow="camera; microphone; fullscreen; geolocation; autoplay"
-      title="XPieder: The World's First Real-Life Social Network"
-      onload="document.getElementById('loader').classList.add('hidden')">
-    </iframe>
+  <!-- iframe container -->
+  <div class="frame-wrap" id="frameWrap" aria-hidden="false">
+    <div class="frame-inner">
+      <!-- PASTE GAMMA IFRAME - we override its internal size via CSS so it becomes full-screen area -->
+      <iframe
+        src="https://gamma.app/embed/8chj517oau8li0f"
+        allow="camera; microphone; fullscreen; geolocation; autoplay"
+        title="XPieder: World's First Real-Life Social Network"
+        referrerpolicy="no-referrer"
+        onload="onFrameLoaded()"
+        sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-popups allow-modals allow-top-navigation-by-user-activation">
+      </iframe>
+    </div>
   </div>
 
   <!-- Footer -->
-  <footer role="contentinfo">
+  <footer role="contentinfo" aria-label="Site footer">
     <div class="footer-left">
-      <div class="copy">XPieder • Real-Life Social Network</div>
-      <div style="color:rgba(255,255,255,0.65)">• Selected for NVIDIA’s Inception Program</div>
+      <div style="display:flex;flex-direction:column;">
+        <div style="font-weight:800;color:#fff">XPieder</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.78);margin-top:2px">Real-Life Social Network</div>
+      </div>
+      <div class="badge" title="Accepted to NVIDIA Inception">NVIDIA Inception</div>
     </div>
+
     <div class="footer-right">
       <div>Techefect Private Limited</div>
       <div style="font-size:12px;opacity:0.9">H-388, Shernagar, Agomoni, 783335, Dhubri, Assam, India</div>
     </div>
   </footer>
 
+  <!-- Invite Modal (hidden) -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <h3>Request Early Access</h3>
+      <p>Enter your email and we’ll notify you when slots are available. We’re prioritising campus rollouts and event partners.</p>
+      <label for="inviteEmail" style="display:none">Email</label>
+      <input id="inviteEmail" type="email" placeholder="your@domain.com" aria-label="Your email" />
+      <div id="inviteMsg" style="font-size:13px;color:rgba(255,255,255,0.8);min-height:20px"></div>
+      <div class="row" style="margin-top:10px;">
+        <button id="modalCancel" style="padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;margin-right:8px;">Cancel</button>
+        <button id="modalSend" style="padding:10px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));color:#fff;font-weight:800;">Request Invite</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Safety: hide loader after 8s even if frame doesn't fire onload
-    setTimeout(function(){
-      var l = document.getElementById('loader');
-      if(l && !l.classList.contains('hidden')) l.classList.add('hidden');
-    }, 8000);
+    // Frame load handler: hide loader when Gamma content loads
+    function onFrameLoaded(){
+      const l = document.getElementById('loader');
+      if(l) { l.classList.add('hidden'); }
+    }
+
+    // Safety: hide loader after 9s if frame doesn't call onload
+    setTimeout(()=>{ const l=document.getElementById('loader'); if(l && !l.classList.contains('hidden')) l.classList.add('hidden'); }, 9000);
+
+    // Modal logic for Request Invite
+    const openInvite = document.getElementById('openInvite');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalSend = document.getElementById('modalSend');
+    const inviteEmail = document.getElementById('inviteEmail');
+    const inviteMsg = document.getElementById('inviteMsg');
+
+    openInvite.addEventListener('click', ()=> {
+      modalBackdrop.style.display='flex';
+      modalBackdrop.setAttribute('aria-hidden','false');
+      inviteEmail.focus();
+    });
+    modalCancel.addEventListener('click', ()=> {
+      modalBackdrop.style.display='none';
+      modalBackdrop.setAttribute('aria-hidden','true');
+      inviteMsg.textContent='';
+    });
+
+    modalSend.addEventListener('click', ()=> {
+      const email = inviteEmail.value.trim();
+      if(!email || !email.includes('@')) { inviteMsg.textContent = 'Please enter a valid email.'; return; }
+      modalSend.disabled = true;
+      modalSend.textContent = 'Sending…';
+      // Simulate a network call — replace with real webhook endpoint
+      setTimeout(()=> {
+        modalSend.disabled = false;
+        modalSend.textContent = 'Request Invite';
+        inviteMsg.textContent = 'Thanks — we will email you when slots open.';
+        inviteEmail.value = '';
+        setTimeout(()=>{ modalBackdrop.style.display='none'; modalBackdrop.setAttribute('aria-hidden','true'); inviteMsg.textContent=''; }, 1300);
+      }, 1200);
+    });
+
+    // Add small micro interaction: nav shrink on scroll (visual)
+    let lastScroll = 0;
+    window.addEventListener('scroll', ()=> {
+      const nav = document.getElementById('topNav');
+      const st = window.scrollY || document.documentElement.scrollTop;
+      if(st > 20) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+      lastScroll = st;
+    });
+
+    // Accessibility: close modal with ESC
+    document.addEventListener('keydown', (e)=> {
+      if(e.key === 'Escape'){
+        modalBackdrop.style.display='none';
+        modalBackdrop.setAttribute('aria-hidden','true');
+      }
+    });
   </script>
 </body>
 </html>
