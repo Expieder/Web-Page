@@ -2,167 +2,330 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XPieder — Real-Life Social Network</title>
-  <meta name="description" content="XPieder — the world's first Real-Life Social Network. Connect with people around you using spatial AR interactions and presence-based discovery." />
+  <meta name="description" content="XPieder overlays a light AR social layer on the real world — express, discover and connect with people around you." />
+  <meta name="theme-color" content="#071727">
   <style>
+    /* ---------- Variables ---------- */
     :root{
-      --bg-1:#04121a; --bg-2:#071727; --muted:rgba(255,255,255,0.88);
-      --nav-h:68px; --footer-h:64px;
+      --bg-1:#04121a;
+      --bg-2:#071727;
+      --accent-a:#7c3aed;
+      --accent-b:#22c7ff;
+      --muted:rgba(230,238,246,0.88);
+      --glass: rgba(255,255,255,0.03);
+      --container:1100px;
+      --radius:14px;
+      --footer-h:72px;
+      --nav-h:72px;
     }
-    html,body{height:100%;margin:0;padding:0;overflow:hidden;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial;color:var(--muted)}
-    .ambient{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(700px 400px at 8% 20%, rgba(124,58,237,0.10), transparent 12%), radial-gradient(700px 400px at 85% 80%, rgba(34,199,255,0.06), transparent 12%);filter:blur(12px);animation:drift 20s linear infinite;}
-    @keyframes drift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(12px,-18px,0)}100%{transform:translate3d(0,0,0)}}
-    .nav{position:fixed;left:16px;right:16px;top:14px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:rgba(255,255,255,0.03);backdrop-filter:blur(8px);border-radius:12px;z-index:10020}
-    .nav-left{display:flex;align-items:center;gap:12px}
-    .brand-img{width:44px;height:44px;border-radius:10px;object-fit:contain}
-    .brand-title{font-weight:800;color:#fff}
-    .nav-right{display:flex;gap:12px;align-items:center}
-    .cta-btn{padding:9px 12px;border-radius:10px;border:0;background:linear-gradient(90deg,#7c3aed,#22c7ff);color:#fff;font-weight:800;cursor:pointer}
 
-    .frame-wrap{position:fixed;left:12px;right:12px;top:calc(var(--nav-h) + 24px);bottom:calc(var(--footer-h) + 16px);z-index:2;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:transparent}
-    .frame-wrap iframe{width:100% !important;height:100% !important;border:0;display:block;background:transparent}
+    /* ---------- Reset ---------- */
+    html,body{height:100%;margin:0;padding:0;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));color:var(--muted);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
 
-    .loader{position:fixed;inset:0;z-index:10015;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(3,6,10,0.55), rgba(3,6,10,0.4));pointer-events:none;transition:opacity .25s ease}
-    .loader.hidden{opacity:0;visibility:hidden}
-    .glow-ring{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%, rgba(34,199,255,0.12), rgba(124,58,237,0.03));animation:breath 1.8s infinite}
-    .ring-core{width:48px;height:48px;border-radius:50%;background:conic-gradient(from 0deg,#7c3aed,#22c7ff)}
-    @keyframes breath{0%{transform:scale(.96)}50%{transform:scale(1.04)}100%{transform:scale(.96)}}
+    /* ---------- Layout ---------- */
+    .page { max-width:var(--container); margin:48px auto 120px; padding:20px; box-sizing:border-box; }
+    .topbar { position:fixed; left:16px; right:16px; top:14px; height:var(--nav-h); z-index:1000; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.02); box-shadow:0 10px 30px rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
+    .brand { display:flex; gap:12px; align-items:center; }
+    .brand img { width:46px; height:46px; border-radius:10px; box-shadow: 0 8px 26px rgba(0,0,0,0.45); }
+    .brand .title { font-weight:800; font-size:16px; color:#fff; line-height:1; }
+    .brand .sub { font-size:12px; color:rgba(255,255,255,0.9); font-weight:600; margin-top:2px; }
 
-    footer{position:fixed;left:12px;right:12px;bottom:12px;height:var(--footer-h);z-index:10020;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-radius:12px;background:rgba(255,255,255,0.02);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.03)}
-    .badge{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.02)}
+    .nav-actions { display:flex; gap:10px; align-items:center; }
+    .btn { background:linear-gradient(90deg,var(--accent-a),var(--accent-b)); color:white; padding:10px 14px; border-radius:10px; font-weight:700; border:0; cursor:pointer; box-shadow:0 8px 30px rgba(124,58,237,0.08); }
+    .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); font-weight:700; padding:9px 12px; }
 
-    /* Fallback banner when embed fails */
-    .fallback-banner{
-      position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:10050;display:none;
-      background:linear-gradient(90deg,#212f3d,#0b2430);padding:10px 14px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,12,0.5)
+    /* ---------- Ambient background (light animation) ---------- */
+    .ambient { position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+        radial-gradient(700px 420px at 8% 22%, rgba(124,58,237,0.10), transparent 12%),
+        radial-gradient(700px 420px at 86% 80%, rgba(34,199,255,0.06), transparent 12%);
+      filter: blur(14px);
+      animation: drift 20s linear infinite;
+      opacity:0.95;
     }
-    .fallback-banner.show{display:flex;gap:12px;align-items:center}
-    .fallback-btn{padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,#7c3aed,#22c7ff);color:#fff;font-weight:700;cursor:pointer}
+    @keyframes drift { 0%{transform:translate3d(0,0,0)} 50%{transform:translate3d(12px,-18px,0)} 100%{transform:translate3d(0,0,0)} }
 
-    /* small screens tweaks */
-    @media (max-width:820px){ .nav{left:8px;right:8px} .frame-wrap{left:8px;right:8px;top:calc(var(--nav-h) + 14px);bottom:calc(var(--footer-h) + 12px)} }
+    /* ---------- Hero ---------- */
+    .hero { display:grid; grid-template-columns: 1fr 440px; gap:32px; align-items:center; margin-top:40px; }
+    .kicker { color:#a8c3ff; font-weight:700; font-size:13px; letter-spacing:0.4px; margin-bottom:8px; }
+    h1 { margin:0 0 14px 0; font-size:34px; line-height:1.05; color:#fff; }
+    p.lead { margin:0 0 18px 0; color:var(--muted); font-size:16px; max-width:56ch; }
+
+    .hero-cta { display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,0.02); box-shadow:0 12px 40px rgba(0,0,0,0.5); color:var(--muted); }
+
+    /* Right column mockup */
+    .mock { width:100%; height:340px; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.02); }
+
+    /* ---------- Feature grid ---------- */
+    .features { display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:36px; }
+    .feature h3 { margin:0 0 8px 0; color:#fff; font-size:18px; }
+    .feature p { margin:0; color:var(--muted); font-size:14px; }
+
+    /* ---------- How it works ---------- */
+    .how { display:flex; gap:18px; margin-top:36px; align-items:stretch; }
+    .how .step { flex:1; padding:16px; border-radius:10px; background:var(--glass); border:1px solid rgba(255,255,255,0.02); }
+
+    /* ---------- Sections ---------- */
+    section { margin-top:30px; }
+    .section-title { font-size:20px; color:#fff; margin:0 0 12px 0; font-weight:800; }
+
+    /* ---------- Smart glasses vision layout ---------- */
+    .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:20px; align-items:center; }
+
+    /* ---------- Footer ---------- */
+    footer.sitefoot { margin-top:48px; padding:26px 0 40px 0; display:flex; justify-content:space-between; align-items:center; gap:16px; color:var(--muted); font-size:14px; }
+    footer .left { font-weight:700; color:#fff; }
+    .small { font-size:13px; color:rgba(255,255,255,0.78); }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:980px){
+      .hero { grid-template-columns:1fr; }
+      .features { grid-template-columns:1fr; }
+      .two-col { grid-template-columns:1fr; }
+      .mock { height:260px; }
+      .page { margin-top:100px; padding:18px; }
+      .topbar { left:10px; right:10px; top:10px; }
+    }
   </style>
 </head>
 <body>
+  <!-- Ambient -->
   <div class="ambient" aria-hidden="true"></div>
 
-  <header class="nav" role="banner">
-    <div class="nav-left">
-      <img src="logo.png" alt="XPieder logo" class="brand-img" />
+  <!-- Topbar -->
+  <div class="topbar" style="position:fixed;left:16px;right:16px;top:14px;z-index:999;">
+    <div class="brand">
+      <img src="logo.png" alt="XPieder logo" />
       <div>
-        <div class="brand-title">XPieder</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.9);font-weight:600">Real-Life Social Network</div>
+        <div class="title">XPieder</div>
+        <div class="sub">Real-Life Social Network</div>
       </div>
     </div>
-    <div class="nav-right">
-      <button class="cta-btn" id="openInvite">Request Invite</button>
-    </div>
-  </header>
 
-  <div id="fallbackBanner" class="fallback-banner" role="alert">
-    <div style="font-weight:700">Having trouble loading XPieder?</div>
-    <button id="openInNew" class="fallback-btn">Open in new tab</button>
-    <button id="retryEmbed" class="fallback-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.08);margin-left:6px;">Retry embed</button>
-  </div>
-
-  <div class="frame-wrap" id="frameWrap">
-    <!-- Correct, clean iframe: no fixed sizes -->
-    <iframe id="gammaFrame"
-      src="https://gamma.app/embed/8chj517oau8li0f"
-      allow="fullscreen; geolocation; microphone; camera"
-      title="XPieder: World's First Real-Life Social Network"
-      onload="onFrameLoad()"></iframe>
-  </div>
-
-  <div id="loader" class="loader" role="status" aria-live="polite">
-    <div style="text-align:center">
-      <div class="glow-ring" aria-hidden="true"><div class="ring-core"></div></div>
-      <div style="margin-top:12px;font-weight:700;color:#fff">Loading XPieder — preparing your real-world layer…</div>
+    <div class="nav-actions" style="justify-self:end">
+      <button class="btn ghost" id="viewDeck">View Pitch Deck</button>
+      <button class="btn" id="getStarted">Get Started</button>
     </div>
   </div>
 
-  <footer role="contentinfo">
-    <div style="display:flex;gap:12px;align-items:center">
-      <div style="font-weight:800;color:#fff">XPieder</div>
-      <div class="badge">NVIDIA Inception</div>
-    </div>
-    <div style="text-align:right">
-      Techefect Private Limited<br />
-      <span style="font-size:12px;opacity:0.9">H-388, Shernagar, Agomoni, 783335, Dhubri, Assam</span>
-    </div>
-  </footer>
+  <!-- Main page container -->
+  <main class="page" role="main">
 
-  <!-- Invite modal (kept lightweight) -->
-  <div id="modalBackdrop" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:10040">
-    <div style="width:100%;max-width:460px;background:#071523;border-radius:12px;padding:18px;color:#fff;border:1px solid rgba(255,255,255,0.03)">
-      <h3 style="margin:0 0 6px 0">Request Early Access</h3>
-      <p style="margin:0 0 12px 0;color:rgba(255,255,255,0.86)">Enter your email and we'll notify you when slots open.</p>
-      <input id="inviteEmail" type="email" placeholder="you@example.com" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff" />
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-        <button id="cancelInvite" style="padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">Cancel</button>
-        <button id="sendInvite" style="padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,#7c3aed,#22c7ff);color:#fff">Request Invite</button>
+    <!-- Hero -->
+    <header class="hero" role="banner" aria-labelledby="hero-heading">
+      <div>
+        <div class="kicker">Experience · Discover · Connect</div>
+        <h1 id="hero-heading">XPieder: World's First Real-Life Social Network</h1>
+        <p class="lead">Connect effortlessly with people around you. Outdoors. In real spaces. Through a simple AR social layer. Socialising starts in the real world and not behind a screen.</p>
+
+        <div class="hero-cta">
+          <button class="btn" id="cta-start">Get Started</button>
+          <button class="btn ghost" id="cta-learn">Learn More</button>
+        </div>
+
+        <p style="margin-top:18px;color:var(--muted);font-size:13px">XPieder blends AI, AR, and spatial computing to help people express themselves, discover others, and connect naturally in outdoor locations.</p>
       </div>
-      <div id="inviteMsg" style="margin-top:10px;color:#9cc;"></div>
+
+      <aside>
+        <div class="card">
+          <div style="font-weight:800;margin-bottom:8px;color:#fff">A Social Layer Built for the Physical World</div>
+          <div style="color:var(--muted);margin-bottom:12px">XPieder overlays virtual social interactions on top of real environments. Whether you're on a campus, at a café, in a park, or at a festival. Xpieder lets you:</div>
+          <ul style="margin:0;padding-left:18px;color:var(--muted);">
+            <li>Express interest</li>
+            <li>Receive real-time positive signals</li>
+            <li>Discover people and experiences around you</li>
+            <li>Unlock spatial objects like notes, gifts, offers, and rewards</li>
+          </ul>
+        </div>
+
+        <div style="height:18px"></div>
+
+        <div class="mock card" aria-hidden="true">
+          <!-- Placeholder for hero visual; replace with rendered image/video later -->
+          <div style="text-align:center;color:var(--muted)">
+            <div style="font-weight:700;color:#e6eef6;margin-bottom:6px">Real-world AR layer — mockup</div>
+            <div style="font-size:13px">Use a campus / café photo with subtle AR overlays in production</div>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <!-- How it works -->
+    <section id="how">
+      <h2 class="section-title">How It Works</h2>
+      <p style="color:var(--muted)">Social Discovery Powered by Reality</p>
+
+      <div class="how">
+        <div class="step card">
+          <h3 style="margin-top:0">Step Out</h3>
+          <p style="color:var(--muted);margin:0">XPieder activates in outdoor locations like campuses, hotspots, events, and public spaces.</p>
+        </div>
+        <div class="step card">
+          <h3 style="margin-top:0">See the Social Layer</h3>
+          <p style="color:var(--muted);margin:0">AR and on-device AI reveal spatial interactions, social signals, and virtual objects around you.</p>
+        </div>
+        <div class="step card">
+          <h3 style="margin-top:0">Connect Naturally</h3>
+          <p style="color:var(--muted);margin:0">Real people, real places, real interactions. No awkwardness. No pressure.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Signature features -->
+    <section id="features">
+      <h2 class="section-title">Signature Features</h2>
+      <p style="color:var(--muted)">Built for Real Human Connection</p>
+
+      <div class="features">
+        <div class="feature card">
+          <h3>Real-Time Sparks</h3>
+          <p>Express positive signals to people around you — the real-life like button.</p>
+        </div>
+
+        <div class="feature card">
+          <h3>Spatial Social Objects</h3>
+          <p>Send and receive virtual gifts, notes, movie tickets, shopping vouchers when present at the same location.</p>
+        </div>
+
+        <div class="feature card">
+          <h3>Hyper-Local Offers & Rewards</h3>
+          <p>Unlock real-time deals from cafés, stores, and shopping hotspots when you’re nearby.</p>
+        </div>
+
+        <div class="feature card">
+          <h3>Presence-Based Discovery</h3>
+          <p>XPieder avoids spam by revealing content only when you're truly there.</p>
+        </div>
+
+        <div class="feature card">
+          <h3>Works on Smartphones Today</h3>
+          <p>A full AR-powered experience available instantly — no special hardware required.</p>
+        </div>
+
+        <div class="feature card">
+          <h3>Enhances with Smart Glasses</h3>
+          <p>Pairs seamlessly with lightweight Bluetooth camera-enabled smart glasses and advanced AI glasses for hands-free experiences.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Smart glasses vision -->
+    <section id="glasses">
+      <h2 class="section-title">Smart Glasses Vision</h2>
+      <p style="color:var(--muted)">Designed for Today, Perfect for Tomorrow</p>
+
+      <div class="two-col">
+        <div class="card">
+          <ul style="margin:0;padding-left:18px;color:var(--muted)">
+            <li>Hands-free interactions</li>
+            <li>Ambient social layer</li>
+            <li>Instant discovery</li>
+            <li>Next-gen social experiences</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <p style="margin:0;color:var(--muted)">XPieder works beautifully on smartphones and easily pairs with lightweight camera-enabled smart glasses (without HUD display). It becomes magical with advanced AI glasses — but XPieder does not depend on hardware adoption to succeed.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Privacy -->
+    <section id="privacy">
+      <h2 class="section-title">Privacy-First Design</h2>
+      <p style="color:var(--muted)">Human Connection, Without Surveillance</p>
+
+      <div class="card" style="margin-top:12px">
+        <ul style="margin:0;padding-left:18px;color:var(--muted)">
+          <li>No face recognition</li>
+          <li>No biometric storage</li>
+          <li>On-device AI processing</li>
+          <li>Fully encrypted interactions</li>
+          <li>Compliance model inspired by Snapchat & TikTok</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Why XPieder -->
+    <section id="why">
+      <h2 class="section-title">Why XPieder?</h2>
+      <p style="color:var(--muted)">Because real-life socializing is broken & we're here to fix it.</p>
+
+      <div class="card" style="margin-top:12px">
+        <strong>The Problem: Digital Disconnect</strong>
+        <p style="margin:6px 0 0;color:var(--muted)">Gen Z is the most connected generation, yet the loneliest. Social apps keep us scrolling, not socializing.</p>
+
+        <div style="height:10px"></div>
+
+        <strong>The Barrier: Social Awkwardness</strong>
+        <p style="margin:6px 0 0;color:var(--muted)">Awkwardness and fear often prevent people from approaching each other in real life.</p>
+
+        <div style="height:10px"></div>
+
+        <strong>XPieder: The Solution</strong>
+        <p style="margin:6px 0 0;color:var(--muted)">We enhance real-life interaction, making genuine connections effortless and natural.</p>
+      </div>
+    </section>
+
+    <!-- CTA / footer area -->
+    <section style="margin-top:36px;text-align:center">
+      <h2 style="margin:0 0 8px 0;color:#fff">Discover Real People, in Real Places, in Real Time.</h2>
+      <div style="margin-top:12px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn" id="joinWait">Join Waitlist</button>
+        <a href="https://xpieder-gaq30kv.gamma.site/" target="_blank" rel="noopener" class="btn ghost">View Pitch Deck</a>
+      </div>
+      <div style="margin-top:12px;color:var(--muted)">Press Coverage Link • Play Store Link</div>
+    </section>
+
+    <footer class="sitefoot">
+      <div class="left">© 2025 XPieder • Real-Life Social Network</div>
+      <div class="small">Techefect Private Limited • H-388, Shernagar, Agomoni, 783335, Dhubri, Assam • <a href="#" style="color:var(--muted)">Privacy</a> • <a href="#" style="color:var(--muted)">Terms</a></div>
+    </footer>
+  </main>
+
+  <!-- Minimal JS for CTA modals and waitlist (simulated) -->
+  <div id="waitModal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1200">
+    <div style="width:100%;max-width:460px;background:#071523;border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03)">
+      <h3 style="color:#fff;margin:0 0 8px 0">Join the XPieder Waitlist</h3>
+      <p style="color:var(--muted);margin:0 0 12px 0">Enter your email and we'll notify you for early access.</p>
+      <input id="waitEmail" type="email" placeholder="you@domain.com" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff" />
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="waitCancel" style="padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">Cancel</button>
+        <button id="waitSend" class="btn">Join</button>
+      </div>
+      <div id="waitMsg" style="margin-top:10px;color:#9cc"></div>
     </div>
   </div>
 
   <script>
-    // Public gamma.site (fallback) — use your actual gamma.site public URL here:
-    const GAMMA_PUBLIC = "https://xpieder-gaq30kv.gamma.site/"; // fallback open in new tab
-    const GAMMA_EMBED = "https://gamma.app/embed/8chj517oau8li0f";
+    // open pitch deck in new tab (topbar button)
+    document.getElementById('viewDeck').addEventListener('click', function(){ window.open('https://xpieder-gaq30kv.gamma.site/','_blank','noopener'); });
+    document.getElementById('getStarted').addEventListener('click', function(){ document.getElementById('waitModal').style.display='flex'; document.getElementById('waitEmail').focus(); });
+    document.getElementById('cta-start').addEventListener('click', ()=> document.getElementById('waitModal').style.display='flex');
+    document.getElementById('cta-learn').addEventListener('click', ()=> document.getElementById('how').scrollIntoView({behavior:'smooth'}));
+    document.getElementById('joinWait').addEventListener('click', ()=> document.getElementById('waitModal').style.display='flex');
 
-    let iframeLoaded = false;
-    const loader = document.getElementById('loader');
-    const fallback = document.getElementById('fallbackBanner');
-    const frame = document.getElementById('gammaFrame');
+    // Waitlist modal logic (simulated)
+    (function(){
+      var cancel = document.getElementById('waitCancel');
+      var send = document.getElementById('waitSend');
+      var input = document.getElementById('waitEmail');
+      var msg = document.getElementById('waitMsg');
 
-    function onFrameLoad(){
-      // iframe has fired load — mark success and hide loader
-      iframeLoaded = true;
-      if(loader) loader.classList.add('hidden');
-      // hide fallback if visible
-      if(fallback) fallback.classList.remove('show');
-    }
-
-    // Fallback detection: if iframe hasn't loaded properly in X seconds, show banner.
-    // 1. 3s: if not loaded, show a small unobtrusive fallback banner.
-    // 2. 7s: if still not loaded, make banner more prominent (user can open in new tab).
-    setTimeout(()=>{ if(!iframeLoaded){ fallback.classList.add('show'); } }, 3000);
-    setTimeout(()=>{ if(!iframeLoaded){ fallback.classList.add('show'); /* could push analytics here */ } }, 7000);
-
-    // Buttons
-    document.getElementById('openInNew').addEventListener('click', function(){
-      window.open(GAMMA_PUBLIC, '_blank', 'noopener');
-    });
-    document.getElementById('retryEmbed').addEventListener('click', function(){
-      // reload iframe cleanly
-      try {
-        loader.classList.remove('hidden');
-        iframeLoaded = false;
-        frame.src = GAMMA_EMBED + '?reload=' + Date.now();
-      } catch(e) { window.open(GAMMA_PUBLIC, '_blank', 'noopener'); }
-    });
-
-    // Invite modal wiring
-    document.getElementById('openInvite').addEventListener('click', function(){
-      document.getElementById('modalBackdrop').style.display = 'flex';
-      document.getElementById('inviteEmail').focus();
-    });
-    document.getElementById('cancelInvite').addEventListener('click', function(){
-      document.getElementById('modalBackdrop').style.display = 'none';
-    });
-    document.getElementById('sendInvite').addEventListener('click', function(){
-      const email = document.getElementById('inviteEmail').value.trim();
-      const msg = document.getElementById('inviteMsg');
-      if(!email || email.indexOf('@')===-1){ msg.textContent = 'Please enter a valid email.'; return; }
-      msg.textContent = 'Sending...';
-      // Simulate - replace with real webhook
-      setTimeout(()=>{ msg.textContent = 'Thanks — we will be in touch.'; document.getElementById('inviteEmail').value=''; setTimeout(()=>document.getElementById('modalBackdrop').style.display='none',1200); }, 900);
-    });
-
-    // Extra: on mobile, if iframe failing repeatedly we will not auto-open but the banner button is visible.
-    // If you want an auto-open experience, we can prompt the user, but browsers may block pop-ups.
+      cancel.addEventListener('click', function(){ document.getElementById('waitModal').style.display='none'; msg.textContent=''; });
+      send.addEventListener('click', function(){
+        var email = (input.value || '').trim();
+        if(!email || email.indexOf('@') === -1){ msg.textContent='Please enter a valid email.'; return; }
+        send.disabled = true; send.textContent = 'Sending…';
+        // TODO: replace with webhook / mailing list integration
+        setTimeout(function(){ send.disabled=false; send.textContent='Join'; msg.textContent='Thanks — we will be in touch.'; input.value=''; setTimeout(function(){ document.getElementById('waitModal').style.display='none'; msg.textContent=''; },1200); }, 1100);
+      });
+    })();
   </script>
 </body>
 </html>
