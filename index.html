@@ -4,67 +4,179 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>XPieder — Real-Life Social Network</title>
-
+  <meta name="description" content="XPieder — the world's first Real-Life Social Network. Connect with people around you using spatial AR interactions and presence-based discovery." />
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      background: #000;
-      font-family: Arial, sans-serif;
+    :root{
+      --bg1: #06121a;
+      --bg2: #071727;
+      --accent: #7c3aed;
+      --accent-2: #3b82f6;
+      --muted: rgba(255,255,255,0.84);
+      --footer-h: 60px;
+      --loader-bg: rgba(6,12,18,0.85);
     }
 
-    /* Wrapper forces the iframe to fill full browser height */
+    /* Reset / page */
+    html,body{height:100%;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
+    body{background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--muted);-webkit-font-smoothing:antialiased;overflow:hidden;}
+
+    /* Floating brand/logo */
+    .brand {
+      position:fixed;
+      top:14px;
+      left:16px;
+      z-index:10010;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      padding:8px 12px;
+      border-radius:12px;
+      box-shadow:0 6px 24px rgba(12,18,30,0.5);
+      color:#fff;
+      font-weight:700;
+      font-size:15px;
+      line-height:1;
+    }
+    .brand .logo {
+      width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;
+      background:rgba(255,255,255,0.06);
+    }
+    .brand small{display:block;font-weight:600;font-size:12px;opacity:0.95}
+
+    /* Frame area - leaves room for footer */
     .frame-wrap {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:var(--footer-h);
+      width:100%;
+      height:calc(100vh - var(--footer-h));
+      background:transparent;
+      z-index:1;
+      overflow:hidden;
+      display:block;
     }
 
     iframe {
-      width: 100% !important;
-      height: 100% !important;
-      border: 0;
-      display: block;
+      width:100% !important;
+      height:100% !important;
+      border:0;
+      display:block;
+      background:transparent;
     }
 
-    /* Loading overlay */
+    /* Loading overlay with spinner */
     #loader {
-      position: fixed;
-      inset: 0;
-      background: #060c12;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffffcc;
-      font-size: 18px;
-      z-index: 9999;
-      font-family: Inter, sans-serif;
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:10005;
+      background:var(--loader-bg);
+      color:#fff;
+      font-family:Inter,system-ui;
+      flex-direction:column;
+      gap:12px;
+      transition:opacity .3s ease, visibility .3s ease;
+    }
+    #loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+
+    .spinner {
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      border:6px solid rgba(255,255,255,0.08);
+      border-top-color: #fff;
+      animation:spin 1s linear infinite;
+      box-shadow:0 6px 18px rgba(0,0,0,0.5);
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .loader-text { font-size:15px; color: #e6eef6; opacity:0.95; }
+
+    /* Footer */
+    footer {
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      height:var(--footer-h);
+      background:linear-gradient(180deg, rgba(7,23,37,0.36), rgba(3,8,14,0.6));
+      backdrop-filter: blur(6px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 18px;
+      z-index:10008;
+      box-shadow:0 -8px 30px rgba(4,8,14,0.6);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer-left { display:flex; gap:12px; align-items:center; }
+    .footer-left .copy { font-weight:600; color:#e6eef6 }
+    .footer-right { text-align:right; color:rgba(255,255,255,0.78); font-size:13px }
+    .footer-right a { color:rgba(255,255,255,0.78); text-decoration:none; margin-left:10px; }
+
+    /* Small responsive adjustments */
+    @media (max-width:700px){
+      .brand{top:10px; left:10px; padding:6px 10px}
+      .brand .logo{width:32px;height:32px;font-size:13px}
+      #loader .spinner{width:46px;height:46px;border-width:5px}
     }
   </style>
 </head>
-
 <body>
 
-  <!-- Loading Screen -->
-  <div id="loader">Loading XPieder…</div>
-
-  <div class="frame-wrap">
-
-    <!-- XPieder Gamma Embed -->
-    <iframe 
-      src="https://gamma.app/embed/8chj517oau8li0f"
-      allow="fullscreen"
-      title="XPieder: The World's First Real-Life Social Network"
-      onload="document.getElementById('loader').style.display='none';">
-    </iframe>
-
+  <!-- Floating brand -->
+  <div class="brand" aria-hidden="true">
+    <div class="logo">XP</div>
+    <div>
+      <div>XPieder</div>
+      <small>Real-Life Social Network</small>
+    </div>
   </div>
+
+  <!-- Loading overlay (shows until iframe onload) -->
+  <div id="loader" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="loader-text">Loading XPieder — connecting the real world...</div>
+  </div>
+
+  <!-- Full-screen iframe area (leaves room for footer) -->
+  <div class="frame-wrap" id="frameWrap">
+    <!-- PASTE YOUR GAMMA IFRAME BELOW (the snippet you provided is used) -->
+    <iframe
+      src="https://gamma.app/embed/8chj517oau8li0f"
+      allow="camera; microphone; fullscreen; geolocation; autoplay"
+      title="XPieder: The World's First Real-Life Social Network"
+      onload="try{document.getElementById('loader').classList.add('hidden')}catch(e){}">
+    </iframe>
+  </div>
+
+  <!-- Footer with company details -->
+  <footer role="contentinfo">
+    <div class="footer-left">
+      <div class="copy">XPieder • Real-Life Social Network</div>
+      <div style="color:rgba(255,255,255,0.65)">• Selected for NVIDIA’s Inception Program</div>
+    </div>
+    <div class="footer-right">
+      <div>Techefect Private Limited</div>
+      <div style="font-size:12px;opacity:0.9">H-388, Shernagar, Agomoni, 783335, Dhubri, Assam, India</div>
+    </div>
+  </footer>
+
+  <script>
+    // Safety: hide loader after 8 seconds even if iframe doesn't fire onload
+    setTimeout(function(){
+      const l = document.getElementById('loader');
+      if(l && !l.classList.contains('hidden')) l.classList.add('hidden');
+    }, 8000);
+    // If you want to programmatically remove the loader when the iframe posts a ready message,
+    // you can listen for postMessage from your iframe (only if you control the embedded content).
+  </script>
 
 </body>
 </html>
